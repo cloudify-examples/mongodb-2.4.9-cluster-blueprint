@@ -48,6 +48,7 @@ def wait_for_server(port,server_name):
     sys.exit(1)
 
 
+ip=ctx.instance.host_ip
 port=ctx.node.properties['port']
 ##get available port
 port=next_port(port)
@@ -60,7 +61,7 @@ ctx.logger.info(command)
 #sub=subprocess.Popen("nohup {} > /dev/null 2>&1".format(command),shell=True)
 sub=subprocess.Popen(['nohup',
                      "{}/bin/mongos".format(mongo_binaries_path),
-                     "--bind_ip","192.168.33.11",
+                     "--bind_ip",ip,
                      "--port","{}".format(port),
                      "--configdb","{}".format(ctx.instance.runtime_properties['cfghosts'])])
 #p=subprocess.Popen(['nohup','bash','-c','sleep 40'])
