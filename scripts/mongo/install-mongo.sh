@@ -77,4 +77,4 @@ ctx instance runtime-properties mongo_root_path ${MONGO_ROOT_PATH}
 ctx instance runtime-properties mongo_binaries_path ${MONGO_BINARIES_PATH}
 ctx instance runtime-properties mongo_data_path ${MONGO_DATA_PATH}
 
-ctx logger info "Sucessfully installed MongoDB"
+ctx logger info "Successfully installed MongoDB"

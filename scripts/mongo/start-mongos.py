@@ -10,7 +10,7 @@ from cloudify_rest_client import CloudifyClient
 def port_avail(port):
   s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
   try:
-    s.bind((socket.gethostname(),port))
+    s.bind(("0.0.0.0",port))
     s.close()
     return True
   except:
@@ -23,7 +23,8 @@ def next_port(start):
   s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
   for p in range(start,65535):
     try:
-      s.bind((socket.gethostname(),p))
+      ctx.logger.info("trying port:{}".format(p))
+      s.bind(("0.0.0.0",p))
       s.close()
       return p
     except:
@@ -47,6 +48,22 @@ def wait_for_server(port,server_name):
     ctx.logger.error("{} failed to start. waiting for 120 seconds".format(server_name))
     sys.exit(1)
 
+##################################################################
+# Find config servers and combine into comma separated list
+# for easy consumption
+##################################################################
+
+cfghosts=""
+for key,val in ctx.instance.runtime_properties.iteritems():
+  ctx.logger.info("mongos key={}".format(key))
+  if ( key.startswith("cfg_server_host")):
+    ctx.logger.info(" adding {} to config hosts".format(val))
+    cfghosts=cfghosts+val+","
+
+if len(cfghosts)>0:
+  cfghosts=cfghosts.rstrip(',')
+
+ctx.logger.info( "Set cfghosts to ({})".format(cfghosts))
 
 ip=ctx.instance.host_ip
 port=ctx.node.properties['port']
@@ -56,15 +73,11 @@ ctx.instance.runtime_properties['mongo_port']=port
 ctx.logger.info("cfg instance port: {}".format(port))
 mongo_binaries_path=ctx.instance.runtime_properties['mongo_binaries_path']
 
-command="{}/bin/mongos --port {} --configdb {}".format(mongo_binaries_path,port,ctx.instance.runtime_properties['cfghosts'])
-ctx.logger.info(command)
-#sub=subprocess.Popen("nohup {} > /dev/null 2>&1".format(command),shell=True)
 sub=subprocess.Popen(['nohup',
                      "{}/bin/mongos".format(mongo_binaries_path),
                      "--bind_ip",ip,
                      "--port","{}".format(port),
-                     "--configdb","{}".format(ctx.instance.runtime_properties['cfghosts'])])
-#p=subprocess.Popen(['nohup','bash','-c','sleep 40'])
+                     "--configdb","{}".format(cfghosts)])
 pid=sub.pid
 
 wait_for_server(port,'Mongos')

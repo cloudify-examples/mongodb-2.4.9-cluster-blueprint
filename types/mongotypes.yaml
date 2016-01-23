@@ -22,6 +22,7 @@ node_types:
     interfaces:
       cloudify.interfaces.lifecycle:
         create: scripts/mongo/install-mongo.sh
+        configure: scripts/mongo/install-pymongo.sh
 
   cloudify.nodes.Mongod:
     derived_from: cloudify.nodes.MongoDatabase

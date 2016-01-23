@@ -84,21 +84,14 @@ node_templates:
       rules:
         - remote_ip_prefix: 0.0.0.0/0
           port: { get_property: [ mongod, port ] }
-        - remote_ip_prefix: 0.0.0.0/0
-          port: 28017
 
   mongod:
     type: cloudify.nodes.Mongod
-    instances:
-      deploy: 1
     properties:
-      port: 27400
+      port: 27017
     relationships:
       - type: cloudify.relationships.contained_in
         target: mongod_host
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        configure: scripts/mongo/install-pymongo.sh
 
   mongoc_host:
     type: cloudify.nodes.MonitoredServer
@@ -117,21 +110,16 @@ node_templates:
       rules:
         - remote_ip_prefix: 0.0.0.0/0
           port: { get_property: [ mongoc, port ] }
-        - remote_ip_prefix: 0.0.0.0/0
-          port: 28017
 
   mongoc:
     type: cloudify.nodes.Mongocfg
     instances:
       deploy: 1
     properties:
-      port: 27400
+      port: 27019
     relationships:
       - type: cloudify.relationships.contained_in
         target: mongoc_host
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        configure: scripts/mongo/install-pymongo.sh
 
   joiner:
     type: cloudify.nodes.Compute
@@ -159,11 +147,18 @@ node_templates:
     relationships:
       - target: mongod_security_group
         type: cloudify.openstack.server_connected_to_security_group
+
+  mongos:
+    type: cloudify.nodes.Mongos
+    properties:
+      port: 27017
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: mongos_host
       - target: joiner
         type: cloudify.relationships.depends_on
       - target: mongoc
         type: joiner_connected_to_mongocfg
-
 
 outputs:
   cluster_info:
