@@ -1,3 +1,5 @@
+[![Build Status](https://circleci.com/gh/cloudify-examples/mongodb-2.4.9-cluster-blueprint.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/cloudify-examples/mongodb-2.4.9-cluster-blueprint)
+
 ### MongoDb Blueprint
 
 This repo contains a blueprint that orchestrates a replicated and sharded [MongoDb](https://docs.mongodb.org/v2.6/) version 2.4.9 database cluster.  The blueprint is compatible with Cloudify version 3.3, targeted at [Openstack](http://docs.getcloudify.org/3.3.1/plugins/openstack/), and utilizes the [script plugin](http://docs.getcloudify.org/3.3.1/plugins/script/) to perform orchestration.
